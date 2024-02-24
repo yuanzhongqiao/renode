@@ -1,181 +1,141 @@
-======
-Renode
-======
-
-Copyright (c) 2010-2024 `Antmicro <https://www.antmicro.com>`_
-
-.. image:: https://img.shields.io/badge/View%20on-Antmicro%20Open%20Source%20Portal-332d37?style=flat-square
-   :target: https://opensource.antmicro.com/projects/renode
-
-What is Renode?
----------------
-
-Renode was created by Antmicro as a virtual development tool for multi-node embedded networks (both wired and wireless) and is intended to enable a scalable workflow for creating effective, tested and secure IoT systems.
-
-With Renode, developing, testing, debugging and simulating unmodified software for IoT devices is fast, cost-effective and reliable.
-
-Supported architectures include:
-
-* ARMv7 and ARMv8 Cortex-A, Cortex-R and Cortex-M
-* x86
-* RISC-V
-* SPARC
-* POWER
-* Xtensa
-
-Why use Renode?
----------------
-
-Renode was created based on many years of experience with the development of software for embedded systems - both for gateways, on-board computers, as well as sensor nodes and microcontrollers.
-
-Testing and developing physical embedded systems is difficult due to poor reproducibility and lack of insight into the current state of a system, especially in multi-node scenarios.
-
-Renode addresses this issue by letting you run unmodified binaries identical to the ones you would normally flash onto their target hardware on a virtual board or system of boards.
-
-One important aspect of the tool is that it simulates not only CPUs but entire SoCs (e.g., heterogeneous multicore SoCs and various peripherals) as well as the wired or wireless connections between them, allowing users to address complex scenarios and test real production software.
-
-Installation
-------------
-
-Using the Linux portable release
-++++++++++++++++++++++++++++++++
-
-If you are a Linux user, the easiest way to use Renode is to download the latest `linux-portable` from `the releases section <https://github.com/renode/renode/releases/latest>`_ and unpack it using::
-
-   mkdir renode_portable
-   tar xf  renode-*.linux-portable.tar.gz -C renode_portable --strip-components=1
-
-To use it from any location, enter the created directory and add it to the system path::
-
-   cd renode_portable
-   export PATH="`pwd`:$PATH"
-
-Follow the 'Additional Prerequisites' section if you wish to use the Robot framework for testing.
-Otherwise, you are ready to go to the 'Running Renode' section.
-
-Installing dependencies
-+++++++++++++++++++++++
-
-Mono/.NET
-~~~~~~~~~
-
-Renode requires Mono >= 5.20 (Linux, macOS) or .NET >= 4.7 (Windows).
-
-.. csv-table::
-   :delim: |
-
-   **Linux** | Install the ``mono-complete`` package as per the installation instructions for various Linux distributions, which can be found on `the Mono project website <https://www.mono-project.com/download/stable/#download-lin>`_.
-   **macOS** | On macOS, the Mono package can be downloaded directly from `the Mono project website <https://download.mono-project.com/archive/mdk-latest-stable.pkg>`_.
-   **Windows** | On Windows 7, download and install `.NET Framework 4.7 <https://www.microsoft.com/net/download/dotnet-framework-runtime>`_. Windows 10 ships with .NET by default, so no action is required.
-
-Other dependencies (Linux only)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-On Ubuntu 20.04, you can install the remaining dependencies with the following command::
-
-   sudo apt-get install policykit-1 libgtk2.0-0 screen uml-utilities gtk-sharp2 libc6-dev gcc python3 python3-pip
-
-If you are running a different distribution, you will need to install an analogous list of packages using your package manager; note that the package names may differ slightly.
-
-Installing from packages
-++++++++++++++++++++++++
-
-Go to `the releases section <https://github.com/renode/renode/releases/latest>`_ of this repository and download the appropriate package for your system.
-
-.. csv-table::
-   :delim: |
-
-   **Linux** | Install Renode with your preferred package manager using the provided ``*.deb``, ``*.rpm`` or ``*.pkg.tar.xz`` packages.
-   **macOS** | Use the provided ``*.dmg`` as normal. Additionally, to use Renode from the command line on macOS, create appropriate aliases. You can add ``alias renode='mono /Applications/Renode.app/Contents/MacOS/bin/Renode.exe'`` and ``alias renode-test='/Applications/Renode.app/Contents/MacOS/tests/renode-test'`` to your ``.bashrc`` or ``.zshrc`` file, depending on the shell you're using.
-   **Windows** | Install Renode from the provided ``*.msi`` file. The installer will allow you to add icons to your Desktop and/or Start Menu and an entry to your PATH.
-
-Additional prerequisites (for Robot framework testing)
-++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-To write and run test cases, Renode integrates with the Robot testing framework.
-This requires you to install Python 3 (on Windows, you will also need Cygwin - see `the advanced installation instructions <https://renode.readthedocs.io/en/latest/advanced/building_from_sources.html#windows>`_) with ``pip`` (note that the relevant package may be called ``python-pip`` or ``python3-pip`` on Linux).
-
-Once you have Python 3 and ``pip``, install some additional modules::
-
-    python3 -m pip install -r tests/requirements.txt
-
-Building from source (advanced)
-+++++++++++++++++++++++++++++++
-
-For information on building Renode from source, see `the documentation <https://renode.readthedocs.io/en/latest/advanced/building_from_sources.html>`_.
-
-Nightly packages
-++++++++++++++++
-
-Nightly builds of Renode for all systems are available at `builds.renode.io <https://builds.renode.io>`_.
-Please note that these packages are not stable releases.
-
-The latest builds are always available as ``renode-latest.*`` packages.
-
-Running Renode
---------------
-
-If you followed the instructions on installing from a package above, you should have a system-wide ``renode`` command that you can use to run the tool::
-
-   renode [flags] [file]
-
-If you built it from source, navigate to the relevant directory and use::
-
-   ./renode [flags] [file]
-
-The optional ``[file]`` argument allows you to provide the path to a script to be run on startup.
-
-The script allows several optional flags, the most useful of which are presented below::
-
-   -d            debug mode (requires prior build in debug configuration) - only available when built from source
-   -e COMMAND    execute a command on startup (executed after the [file] argument)
-   -p            remove ANSI escape codes (e.g., colors) from the output
-   -P PORT       listen on a port for Monitor commands instead of opening a window
-   --console     run the Monitor in the console instead of a separate window
-   -v            prints the version number
-   -h            help & usage
-
-Renode can be run on Windows systems by starting Renode.exe with a similar set of optional flags.
-
-Running Renode in a Docker container
-------------------------------------
-
-If you want to run Renode in Docker, you can use a prebuilt image available on Docker Hub.
-
-To start it in interactive mode on Linux, assuming you have installed Docker on your system, run::
-
-   docker run -ti -e DISPLAY -v $XAUTHORITY:/home/developer/.Xauthority --net=host antmicro/renode
-
-This should display the Renode Monitor window.
-Alternatively, you can provide your custom command at the end of the above line.
-
-To run the image in console mode without X server passthrough, run::
-
-   docker run -ti antmicro/renode bash
-
-You can add more ``-v`` switches to the command to mount your own directories.
-
-For more information and the underlying Dockerfile, visit the `repository on GitHub <https://github.com/renode/renode-docker>`_.
-
-Documentation
--------------
-
-Documentation is available on `Read the Docs <https://renode.readthedocs.io>`_.
-
-License & contributions
------------------------
-
-Renode is released under the permissive MIT license.
-For details, see the `<LICENSE>`_ file.
-
-We're happy to accept bug reports, feature requests, and contributions via GitHub pull requests / issues.
-For details, see the `<CONTRIBUTING.rst>`_ file.
-
-Commercial support
-------------------
-
-Commercial support for Renode is provided by `Antmicro <https://antmicro.com>`_, a company specializing in helping its clients to adopt new embedded technologies and modern development methodologies.
-
-Antmicro created and maintains the Renode framework and related tooling and is happy to provide services such as adding new platforms, integrations, plugins, and tools.
-
-To inquire about our services, contact us at support@renode.io.
+<div class="Box-sc-g0xbh4-0 bJMeLZ js-snippet-clipboard-copy-unpositioned" data-hpc="true"><article class="markdown-body entry-content container-lg" itemprop="text"><h1 tabindex="-1" dir="auto"><a id="user-content-renode" class="anchor" aria-hidden="true" tabindex="-1" href="#renode"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">重新节点</font></font></h1>
+<p dir="auto"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">版权所有 (c) 2010-2024</font></font><a href="https://www.antmicro.com" rel="nofollow"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">蚂蚁微</font></font></a></p>
+<a href="https://opensource.antmicro.com/projects/renode" rel="nofollow"><img alt="https://img.shields.io/badge/View%20on-Antmicro%20Open%20Source%20Portal-332d37?style=flat-square" src="https://camo.githubusercontent.com/ebfb09e78ec54ca1d8e42d2276bed906a0894b563a655be87d92906e7107a770/68747470733a2f2f696d672e736869656c64732e696f2f62616467652f566965772532306f6e2d416e746d6963726f2532304f70656e253230536f75726365253230506f7274616c2d3333326433373f7374796c653d666c61742d737175617265" data-canonical-src="https://img.shields.io/badge/View%20on-Antmicro%20Open%20Source%20Portal-332d37?style=flat-square" style="max-width: 100%;"></a>
+<a name="user-content-what-is-renode"></a>
+<h2 tabindex="-1" dir="auto"><a id="user-content-what-is-renode" class="anchor" aria-hidden="true" tabindex="-1" href="#what-is-renode"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">什么是Renode？</font></font></h2>
+<p dir="auto"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">Renode 由 Antmicro 创建，作为多节点嵌入式网络（有线和无线）的虚拟开发工具，旨在实现可扩展的工作流程，以创建有效、经过测试和安全的物联网系统。</font></font></p>
+<p dir="auto"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">借助 Renode，可以快速、经济高效且可靠地开发、测试、调试和模拟物联网设备的未修改软件。</font></font></p>
+<p dir="auto"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">支持的架构包括：</font></font></p>
+<ul dir="auto">
+<li><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">ARMv7 和 ARMv8 Cortex-A、Cortex-R 和 Cortex-M</font></font></li>
+<li><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">x86</font></font></li>
+<li><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">RISC-V</font></font></li>
+<li><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">斯帕克</font></font></li>
+<li><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">力量</font></font></li>
+<li><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">克滕萨</font></font></li>
+</ul>
+<a name="user-content-why-use-renode"></a>
+<h2 tabindex="-1" dir="auto"><a id="user-content-why-use-renode" class="anchor" aria-hidden="true" tabindex="-1" href="#why-use-renode"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">为什么使用 Renode？</font></font></h2>
+<p dir="auto"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">Renode 是基于多年嵌入式系统软件开发经验而创建的——既适用于网关、车载计算机，也适用于传感器节点和微控制器。</font></font></p>
+<p dir="auto"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">由于可重复性差且缺乏对系统当前状态的洞察，尤其是在多节点场景中，测试和开发物理嵌入式系统非常困难。</font></font></p>
+<p dir="auto"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">Renode 通过让您运行与通常闪存到虚拟板或板系统上的目标硬件上的二进制文件相同的未修改的二进制文件来解决此问题。</font></font></p>
+<p dir="auto"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">该工具的一个重要方面是，它不仅可以模拟 CPU，还可以模拟整个 SoC（例如异构多核 SoC 和各种外设）以及它们之间的有线或无线连接，从而使用户能够解决复杂的场景并测试实际的生产软件。</font></font></p>
+<a name="user-content-installation"></a>
+<h2 tabindex="-1" dir="auto"><a id="user-content-installation" class="anchor" aria-hidden="true" tabindex="-1" href="#installation"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">安装</font></font></h2>
+<a name="user-content-using-the-linux-portable-release"></a>
+<h3 tabindex="-1" dir="auto"><a id="user-content-using-the-linux-portable-release" class="anchor" aria-hidden="true" tabindex="-1" href="#using-the-linux-portable-release"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">使用 Linux 便携式版本</font></font></h3>
+<p dir="auto"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">如果您是 Linux 用户，使用 Renode 最简单的方法是从</font></font><a href="https://github.com/renode/renode/releases/latest"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">发布部分</font></font></a><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">下载最新的 linux-portable并使用以下命令解压它：</font></font></p>
+<pre><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">mkdir renode_portable</font></font><font></font><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">
+tar xf renode-*.linux-portable.tar.gz -C renode_portable --strip-components=1</font></font><font></font>
+</pre>
+<p dir="auto"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">要从任何位置使用它，请输入创建的目录并将其添加到系统路径：</font></font></p>
+<pre><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">cd renode_portable</font></font><font></font><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">
+导出 PATH="`pwd`:$PATH"</font></font><font></font>
+</pre>
+<p dir="auto"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">如果您希望使用 Robot 框架进行测试，请遵循“其他先决条件”部分。</font><font style="vertical-align: inherit;">否则，您就可以进入“运行 Renode”部分。</font></font></p>
+<a name="user-content-installing-dependencies"></a>
+<h3 tabindex="-1" dir="auto"><a id="user-content-installing-dependencies" class="anchor" aria-hidden="true" tabindex="-1" href="#installing-dependencies"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">安装依赖项</font></font></h3>
+<a name="user-content-mono-net"></a>
+<h4 tabindex="-1" dir="auto"><a id="user-content-mononet" class="anchor" aria-hidden="true" tabindex="-1" href="#mononet"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">单声道/.NET</font></font></h4>
+<p dir="auto"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">Renode 需要 Mono &gt;= 5.20（Linux、macOS）或 .NET &gt;= 4.7（Windows）。</font></font></p>
+<table>
+
+
+
+
+<tbody valign="top">
+<tr><td><strong><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">Linux</font></font></strong></td>
+<td><font style="vertical-align: inherit;"></font><code>mono-complete</code><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">按照各种 Linux 发行版的安装说明</font><font style="vertical-align: inherit;">安装软件包，这些说明可以在</font></font><a href="https://www.mono-project.com/download/stable/#download-lin" rel="nofollow"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">Mono 项目网站</font></font></a><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">上找到。</font></font></td>
+</tr>
+<tr><td><strong><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">苹果系统</font></font></strong></td>
+<td><font style="vertical-align: inherit;"></font><a href="https://download.mono-project.com/archive/mdk-latest-stable.pkg" rel="nofollow"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">在 macOS 上，可以直接从Mono 项目网站</font></font></a><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">下载 Mono 包</font><font style="vertical-align: inherit;">。</font></font></td>
+</tr>
+<tr><td><strong><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">视窗</font></font></strong></td>
+<td><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">在 Windows 7 上，下载并安装</font></font><a href="https://www.microsoft.com/net/download/dotnet-framework-runtime" rel="nofollow"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">.NET Framework 4.7</font></font></a><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">。</font><font style="vertical-align: inherit;">Windows 10 默认情况下附带 .NET，因此无需执行任何操作。</font></font></td>
+</tr>
+</tbody>
+</table>
+<a name="user-content-other-dependencies-linux-only"></a>
+<h4 tabindex="-1" dir="auto"><a id="user-content-other-dependencies-linux-only" class="anchor" aria-hidden="true" tabindex="-1" href="#other-dependencies-linux-only"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">其他依赖项（仅限 Linux）</font></font></h4>
+<p dir="auto"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">在 Ubuntu 20.04 上，您可以使用以下命令安装其余依赖项：</font></font></p>
+<pre><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">sudo apt-get安装policykit-1 libgtk2.0-0屏幕uml实用程序gtk-sharp2 libc6-dev gcc python3 python3-pip
+</font></font></pre>
+<p dir="auto"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">如果您运行的是不同的发行版，则需要使用包管理器安装类似的包列表；</font><font style="vertical-align: inherit;">请注意，包名称可能略有不同。</font></font></p>
+<a name="user-content-installing-from-packages"></a>
+<h3 tabindex="-1" dir="auto"><a id="user-content-installing-from-packages" class="anchor" aria-hidden="true" tabindex="-1" href="#installing-from-packages"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">从包安装</font></font></h3>
+<p dir="auto"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">转到此存储库的</font></font><a href="https://github.com/renode/renode/releases/latest"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">发布部分</font></font></a><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">并下载适合您的系统的软件包。</font></font></p>
+<table>
+
+
+
+
+<tbody valign="top">
+<tr><td><strong><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">Linux</font></font></strong></td>
+<td><font style="vertical-align: inherit;"></font><code>*.deb</code><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">使用提供的、</font></font><code>*.rpm</code><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">或软件包</font><font style="vertical-align: inherit;">通过您首选的软件包管理器安装 Renode </font></font><code>*.pkg.tar.xz</code><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">。</font></font></td>
+</tr>
+<tr><td><strong><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">苹果系统</font></font></strong></td>
+<td><font style="vertical-align: inherit;"></font><code>*.dmg</code><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">正常</font><font style="vertical-align: inherit;">使用所提供的。</font><font style="vertical-align: inherit;">此外，要在 macOS 上从命令行使用 Renode，请创建适当的别名。</font><font style="vertical-align: inherit;">您可以将</font></font><code>alias renode='mono /Applications/Renode.app/Contents/MacOS/bin/Renode.exe'</code><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">和添加</font></font><code>alias renode-test='/Applications/Renode.app/Contents/MacOS/tests/renode-test'</code><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">到您的</font></font><code>.bashrc</code><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">或</font></font><code>.zshrc</code><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">文件中，具体取决于您使用的 shell。</font></font></td>
+</tr>
+<tr><td><strong><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">视窗</font></font></strong></td>
+<td><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">从提供的文件安装 Renode </font></font><code>*.msi</code><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">。</font><font style="vertical-align: inherit;">安装程序将允许您将图标添加到桌面和/或开始菜单以及路径条目。</font></font></td>
+</tr>
+</tbody>
+</table>
+<a name="user-content-additional-prerequisites-for-robot-framework-testing"></a>
+<h3 tabindex="-1" dir="auto"><a id="user-content-additional-prerequisites-for-robot-framework-testing" class="anchor" aria-hidden="true" tabindex="-1" href="#additional-prerequisites-for-robot-framework-testing"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">其他先决条件（用于机器人框架测试）</font></font></h3>
+<p dir="auto"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">为了编写和运行测试用例，Renode 与 Robot 测试框架集成。</font><font style="vertical-align: inherit;">这需要您安装Python 3（在Windows上，您还需要Cygwin - 请参阅</font></font><a href="https://renode.readthedocs.io/en/latest/advanced/building_from_sources.html#windows" rel="nofollow"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">高级安装说明</font></font></a><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">） （请注意，在Linux上可能会</font><font style="vertical-align: inherit;">调用</font></font><code>pip</code><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">相关包</font><font style="vertical-align: inherit;">）。</font></font><code>python-pip</code><font style="vertical-align: inherit;"></font><code>python3-pip</code><font style="vertical-align: inherit;"></font></p>
+<p dir="auto"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">一旦您拥有 Python 3 和</font></font><code>pip</code><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">，请安装一些附加模块：</font></font></p>
+<pre><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">python3 -m pip install -r 测试/requirements.txt
+</font></font></pre>
+<a name="user-content-building-from-source-advanced"></a>
+<h3 tabindex="-1" dir="auto"><a id="user-content-building-from-source-advanced" class="anchor" aria-hidden="true" tabindex="-1" href="#building-from-source-advanced"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">从源代码构建（高级）</font></font></h3>
+<p dir="auto"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">有关从源代码构建 Renode 的信息，请参阅</font></font><a href="https://renode.readthedocs.io/en/latest/advanced/building_from_sources.html" rel="nofollow"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">文档</font></font></a><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">。</font></font></p>
+<a name="user-content-nightly-packages"></a>
+<h3 tabindex="-1" dir="auto"><a id="user-content-nightly-packages" class="anchor" aria-hidden="true" tabindex="-1" href="#nightly-packages"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">每晚套餐</font></font></h3>
+<p dir="auto"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">适用于所有系统的 Renode 夜间版本可在</font></font><a href="https://builds.renode.io" rel="nofollow"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">builds.renode.io</font></font></a><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">上获取。</font><font style="vertical-align: inherit;">请注意，这些软件包不是稳定版本。</font></font></p>
+<p dir="auto"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">最新版本始终以</font></font><code>renode-latest.*</code><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">软件包形式提供。</font></font></p>
+<a name="user-content-running-renode"></a>
+<h2 tabindex="-1" dir="auto"><a id="user-content-running-renode" class="anchor" aria-hidden="true" tabindex="-1" href="#running-renode"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">运行重新节点</font></font></h2>
+<p dir="auto"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">如果您按照上面的包安装说明进行操作，您应该拥有一个</font></font><code>renode</code><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">可用于运行该工具的系统范围命令：</font></font></p>
+<pre><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">重新节点[标志][文件]
+</font></font></pre>
+<p dir="auto"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">如果您从源代码构建它，请导航到相关目录并使用：</font></font></p>
+<pre><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">./renode [标志] [文件]
+</font></font></pre>
+<p dir="auto"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">可选</font></font><code>[file]</code><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">参数允许您提供要在启动时运行的脚本的路径。</font></font></p>
+<p dir="auto"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">该脚本允许多个可选标志，其中最有用的如下所示：</font></font></p>
+<pre><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">-d 调试模式（需要在调试配置中预先构建）- 仅在从源代码构建时可用</font></font><font></font><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">
+-e COMMAND 在启动时执行命令（在 [file] 参数之后执行）</font></font><font></font><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">
+-p 从输出中删除 ANSI 转义码（例如颜色）</font></font><font></font><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">
+-P PORT 在端口上侦听监视器命令而不是打开窗口</font></font><font></font><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">
+--console 在控制台而不是单独的窗口中运行监视器</font></font><font></font><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">
+-v 打印版本号</font></font><font></font><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">
+-h 帮助和用法</font></font><font></font>
+</pre>
+<p dir="auto"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">通过使用一组类似的可选标志启动 Renode.exe，可以在 Windows 系统上运行 Renode。</font></font></p>
+<a name="user-content-running-renode-in-a-docker-container"></a>
+<h2 tabindex="-1" dir="auto"><a id="user-content-running-renode-in-a-docker-container" class="anchor" aria-hidden="true" tabindex="-1" href="#running-renode-in-a-docker-container"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">在 Docker 容器中运行 Renode</font></font></h2>
+<p dir="auto"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">如果要在 Docker 中运行 Renode，可以使用 Docker Hub 上提供的预构建映像。</font></font></p>
+<p dir="auto"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">要在 Linux 上以交互模式启动它，假设您已在系统上安装了 Docker，请运行：</font></font></p>
+<pre><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">docker run -ti -e DISPLAY -v $XAUTHORITY:/home/developer/.Xauthority --net=host antmicro/renode
+</font></font></pre>
+<p dir="auto"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">这应该会显示 Renode Monitor 窗口。</font><font style="vertical-align: inherit;">或者，您可以在上述行的末尾提供自定义命令。</font></font></p>
+<p dir="auto"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">要在没有 X 服务器直通的情况下在控制台模式下运行映像，请运行：</font></font></p>
+<pre><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">docker run -ti antmicro/renode bash
+</font></font></pre>
+<p dir="auto"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">您可以</font></font><code>-v</code><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">向命令添加更多开关来挂载您自己的目录。</font></font></p>
+<p dir="auto"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">有关更多信息和底层 Dockerfile，请访问</font></font><a href="https://github.com/renode/renode-docker"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">GitHub 上的存储库</font></font></a><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">。</font></font></p>
+<a name="user-content-documentation"></a>
+<h2 tabindex="-1" dir="auto"><a id="user-content-documentation" class="anchor" aria-hidden="true" tabindex="-1" href="#documentation"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">文档</font></font></h2>
+<p dir="auto"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">文档可在</font></font><a href="https://renode.readthedocs.io" rel="nofollow"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">阅读文档</font></font></a><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">中找到。</font></font></p>
+<a name="user-content-license-contributions"></a>
+<h2 tabindex="-1" dir="auto"><a id="user-content-license--contributions" class="anchor" aria-hidden="true" tabindex="-1" href="#license--contributions"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">许可和贡献</font></font></h2>
+<p dir="auto"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">Renode 是在 MIT 宽松许可证下发布的。</font><font style="vertical-align: inherit;">有关详细信息，请参阅</font></font><a href="/renode/renode/blob/master/LICENSE"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">LICENSE</font></font></a><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">文件。</font></font></p>
+<p dir="auto"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">我们很乐意通过 GitHub 拉取请求/问题接受错误报告、功能请求和贡献。</font><font style="vertical-align: inherit;">有关详细信息，请参阅</font></font><a href="/renode/renode/blob/master/CONTRIBUTING.rst"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">CONTRIBUTING.rst</font></font></a><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">文件。</font></font></p>
+<a name="user-content-commercial-support"></a>
+<h2 tabindex="-1" dir="auto"><a id="user-content-commercial-support" class="anchor" aria-hidden="true" tabindex="-1" href="#commercial-support"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">商业支持</font></font></h2>
+<p dir="auto"><font style="vertical-align: inherit;"></font><a href="https://antmicro.com" rel="nofollow"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">Renode 的商业支持由Antmicro</font></font></a><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">提供</font><font style="vertical-align: inherit;">，该公司专门帮助客户采用新的嵌入式技术和现代开发方法。</font></font></p>
+<p dir="auto"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">Antmicro 创建并维护 Renode 框架和相关工具，并很乐意提供添加新平台、集成、插件和工具等服务。</font></font></p>
+<p dir="auto"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">如需咨询我们的服务，请通过</font></font><a href="mailto:support@renode.io"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">support@renode.io</font></font></a><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">联系我们。</font></font></p>
+
+</article></div>
